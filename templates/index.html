@@ -31,6 +31,30 @@
     </div>
 </div>
 
+
+<div class="mb-4">
+    <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-star text-warning me-2"></i>Färdiga program</h4>
+    <div class="row g-3" id="presets-container">
+        <div class="col-md-4">
+            <button onclick="loadPreset('classic', '/program')" class="btn btn-outline-dark w-100 text-start p-3 h-100">
+                <strong>Klassisk lägereld</strong><br>
+                <span class="small text-muted">Country Roads, Kumbaya, Lean on Me, You Are My Sunshine</span>
+            </button>
+        </div>
+        <div class="col-md-4">
+            <button onclick="loadPreset('swedish', '/program')" class="btn btn-outline-dark w-100 text-start p-3 h-100">
+                <strong>Svenska favoriter</strong><br>
+                <span class="small text-muted">Helan går, Vi är bäst, Den som vill bli svenskt</span>
+            </button>
+        </div>
+        <div class="col-md-4">
+            <button onclick="loadPreset('short', '/program')" class="btn btn-outline-dark w-100 text-start p-3 h-100">
+                <strong>Kort kväll</strong><br>
+                <span class="small text-muted">3 låtar – perfekt för en snabb lägerkväll</span>
+            </button>
+        </div>
+    </div>
+</div>
 <!-- Songs Grid -->
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for song in songs %}
