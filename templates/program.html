@@ -3,12 +3,12 @@
 {% block content %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h1 class="fw-bold text-dark mb-1"><i class="fa-solid fa-book-open text-warning me-2"></i>Campfire Song Program</h1>
-        <p class="text-muted">Review your selected songs, organize your campfire night, and export to a printable PDF.</p>
+        <h1 class="fw-bold text-dark mb-1"><i class="fa-solid fa-book-open text-warning me-2"></i>Lägereldsprogram</h1>
+        <p class="text-muted">Granska dina valda sånger, organisera din lägerkväll och exportera till ett utskriftsvänligt PDF.</p>
     </div>
     <div class="col-md-4 text-md-end">
         <button id="export-pdf-btn" class="btn btn-warning fw-semibold shadow-sm" style="display: none;">
-            <i class="fa-solid fa-file-pdf me-1"></i> Download PDF Songbook
+            <i class="fa-solid fa-file-pdf me-1"></i> Ladda ner PDF-sångbok
         </button>
     </div>
 </div>
@@ -16,10 +16,10 @@
 <div id="empty-program" class="card shadow-sm border-0 text-center py-5" style="display: none;">
     <div class="card-body py-5">
         <i class="fa-solid fa-fire-extinguisher fa-3x text-muted mb-3"></i>
-        <h3 class="text-dark fw-bold">Your Campfire Program is Empty</h3>
-        <p class="text-muted mb-4">Go to the Song Catalog and click "Add to Program" on songs you want to include.</p>
+        <h3 class="text-dark fw-bold">Ditt lägereldsprogram är tomt</h3>
+        <p class="text-muted mb-4">Gå till sångkatalogen och klicka på "Lägg till i program" på de sånger du vill ha med.</p>
         <a href="{{ url_for('index') }}" class="btn btn-dark fw-semibold">
-            <i class="fa-solid fa-music me-1"></i> Browse Song Catalog
+            <i class="fa-solid fa-music me-1"></i> Bläddra i sångkatalogen
         </a>
     </div>
 </div>
@@ -28,15 +28,15 @@
     <!-- Program Config Card -->
     <div class="card shadow-sm border-0 mb-4 bg-white">
         <div class="card-body p-4">
-            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gear me-1"></i> Program Details</h5>
+            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gear me-1"></i> Programdetaljer</h5>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="program-title-input" class="form-label fw-semibold small">Campfire Title / Event Name</label>
-                    <input type="text" id="program-title-input" class="form-control" value="Scout Troop 42 Campfire Night">
+                    <label for="program-title-input" class="form-label fw-semibold small">Titel / Evenemang</label>
+                    <input type="text" id="program-title-input" class="form-control" value="Scoutpatrull 42 Lägereld">
                 </div>
                 <div class="col-md-6">
-                    <label for="program-subtitle-input" class="form-label fw-semibold small">Date / Location / Subtitle</label>
-                    <input type="text" id="program-subtitle-input" class="form-control" value="September 2026 &bull; Camp Wilderness">
+                    <label for="program-subtitle-input" class="form-label fw-semibold small">Datum / Plats / Undertitel</label>
+                    <input type="text" id="program-subtitle-input" class="form-control" value="September 2026 &bull; Scoutlägret">
                 </div>
             </div>
         </div>
@@ -44,13 +44,13 @@
 
     <!-- Selected Songs List -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="h5 fw-bold text-dark mb-0">Selected Songs (<span id="selected-count">0</span>)</h3>
+        <h3 class="h5 fw-bold text-dark mb-0">Valda sånger (<span id="selected-count">0</span>)</h3>
         <div>
             <button id="clear-program-btn" class="btn btn-sm btn-outline-danger me-2">
-                <i class="fa-solid fa-trash me-1"></i> Clear Program
+                <i class="fa-solid fa-trash me-1"></i> Töm program
             </button>
             <button id="toggle-all-btn" class="btn btn-sm btn-outline-secondary">
-                <i class="fa-solid fa-chevron-down me-1"></i> Collapse All
+                <i class="fa-solid fa-chevron-down me-1"></i> Fäll ihop alla
             </button>
         </div>
     </div>
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allCollapsed = true;
 
     document.getElementById('clear-program-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear your campfire program?')) {
+        if (confirm('Är du säker på att du vill tömma ditt lägereldsprogram?')) {
             localStorage.removeItem('campfire_songs');
             loadProgramSongs();
             updateProgramBadge();
@@ -105,11 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (allCollapsed) {
             icon.classList.remove('fa-chevron-up');
             icon.classList.add('fa-chevron-down');
-            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down me-1"></i> Collapse All';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down me-1"></i> Fäll ihop alla';
         } else {
             icon.classList.remove('fa-chevron-down');
             icon.classList.add('fa-chevron-up');
-            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up me-1"></i> Expand All';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up me-1"></i> Fäll ut alla';
         }
     });
 
@@ -184,8 +184,8 @@ function loadProgramSongs() {
                             <div class="d-flex align-items-center p-3 cursor-pointer" style="background-color: #f8f9fa;" onclick="toggleSongDetails('${song.id}')">
                                 <span class="badge bg-warning text-dark me-3">#${index + 1}</span>
                                 <h4 class="h5 fw-bold text-dark mb-0 me-auto">${song.title}</h4>
-                                <span class="badge bg-light text-dark border me-3">Key: ${song.key}</span>
-                                <span class="text-muted small">By ${song.artist} &bull; ${song.category}</span>
+                                <span class="badge bg-light text-dark border me-3">Tonart: ${song.key}</span>
+                                <span class="text-muted small">Av ${song.artist} &bull; ${song.category}</span>
                                 <i class="fa-solid fa-chevron-down text-muted ms-3" id="chevron-${song.id}"></i>
                             </div>
                             <div class="collapse" id="song-details-${song.id}">
@@ -193,13 +193,13 @@ function loadProgramSongs() {
                                     <div class="row">
                                         <div class="col-md-6">
                                             <p class="text-muted small mb-2"><strong>Artist:</strong> ${song.artist}</p>
-                                            <p class="text-muted small mb-2"><strong>Category:</strong> ${song.category}</p>
-                                            <p class="text-muted small mb-2"><strong>Key:</strong> ${song.key}</p>
+                                            <p class="text-muted small mb-2"><strong>Kategori:</strong> ${song.category}</p>
+                                            <p class="text-muted small mb-2"><strong>Tonart:</strong> ${song.key}</p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p class="text-muted small mb-2"><strong>Lyrics Preview:</strong></p>
+                                            <p class="text-muted small mb-2"><strong>Sångtext:</strong></p>
                                             <div class="lyrics-preview text-muted small" style="max-height: 100px; overflow-y: auto;">
-                                                ${song.lyrics ? (song.lyrics.substring(0, 150) + (song.lyrics.length > 150 ? '...' : '')) : 'No lyrics available'}
+                                                ${song.lyrics ? (song.lyrics.substring(0, 150) + (song.lyrics.length > 150 ? '...' : '')) : 'Ingen sångtext tillgänglig'}
                                             </div>
                                         </div>
                                     </div>
@@ -208,10 +208,10 @@ function loadProgramSongs() {
                             <div class="card-footer bg-white border-0 p-2">
                                 <div class="btn-group w-100">
                                     <a href="/song/${song.id}" class="btn btn-sm btn-outline-primary flex-grow-1" target="_blank">
-                                        <i class="fa-solid fa-eye me-1"></i>View Full
+                                        <i class="fa-solid fa-eye me-1"></i>Visa full
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger" onclick="removeSongFromProgram('${song.id}')">
-                                        <i class="fa-solid fa-trash me-1"></i>Remove
+                                        <i class="fa-solid fa-trash me-1"></i>Ta bort
                                     </button>
                                 </div>
                             </div>

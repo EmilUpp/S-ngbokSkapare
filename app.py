@@ -139,15 +139,18 @@ def export_pdf():
         pdf.multi_cell(282, 5, lyrics_text)
 
     # Cover page (front of booklet) - A4 landscape
+    # Layout: left half = front cover (title centered there), right half = back cover (blank)
+    # After folding the right half over, the title appears centered on the front.
     pdf.add_page()
+    front_w = 297 / 2  # left half
     pdf.set_font("helvetica", "B", 28)
     pdf.set_xy(0, 100)
-    pdf.cell(297, 14, title, ln=False, align="C")
+    pdf.cell(front_w, 14, title, ln=False, align="C")
     if subtitle:
         pdf.set_font("helvetica", "I", 14)
         pdf.set_text_color(100, 100, 100)
         pdf.set_xy(0, 120)
-        pdf.cell(297, 7, subtitle, ln=False, align="C")
+        pdf.cell(front_w, 7, subtitle, ln=False, align="C")
     pdf.set_text_color(0, 0, 0)
 
     # TOC / inside cover - simple list (no lyrics)
@@ -206,14 +209,14 @@ def export_pdf():
                 pdf.add_page()
                 current_col = 0
         if current_col == 0:
-            x = col_x_left
+            current_x = col_x_left
         else:
-            x = col_x_right
+            current_x = col_x_right
 
-        pdf.set_xy(x, current_y)
+        pdf.set_xy(current_x, current_y)
         pdf.set_font("helvetica", "B", 11)
         pdf.multi_cell(col_w, 6, header)
-        pdf.set_x(x)
+        pdf.set_xy(current_x, pdf.get_y())
         pdf.set_font("helvetica", "", 9)
         pdf.multi_cell(col_w, 4.5, lyrics_text)
         current_y = pdf.get_y() + 3
