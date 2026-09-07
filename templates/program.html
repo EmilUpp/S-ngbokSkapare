@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1 class="fw-bold text-dark mb-1"><i class="fa-solid fa-book-open text-warning me-2"></i>Campfire Song Program</h1>
+        <p class="text-muted">Review your selected songs, organize your campfire night, and export to a printable PDF.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button id="export-pdf-btn" class="btn btn-warning fw-semibold shadow-sm" style="display: none;">
+            <i class="fa-solid fa-file-pdf me-1"></i> Download PDF Songbook
+        </button>
+    </div>
+</div>
+
+<div id="empty-program" class="card shadow-sm border-0 text-center py-5" style="display: none;">
+    <div class="card-body py-5">
+        <i class="fa-solid fa-fire-extinguisher fa-3x text-muted mb-3"></i>
+        <h3 class="text-dark fw-bold">Your Campfire Program is Empty</h3>
+        <p class="text-muted mb-4">Go to the Song Catalog and click "Add to Program" on songs you want to include.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-dark fw-semibold">
+            <i class="fa-solid fa-music me-1"></i> Browse Song Catalog
+        </a>
+    </div>
+</div>
+
+<div id="program-content" style="display: none;">
+    <!-- Program Config Card -->
+    <div class="card shadow-sm border-0 mb-4 bg-white">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gear me-1"></i> Program Details</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="program-title-input" class="form-label fw-semibold small">Campfire Title / Event Name</label>
+                    <input type="text" id="program-title-input" class="form-control" value="Scout Troop 42 Campfire Night">
+                </div>
+                <div class="col-md-6">
+                    <label for="program-subtitle-input" class="form-label fw-semibold small">Date / Location / Subtitle</label>
+                    <input type="text" id="program-subtitle-input" class="form-control" value="September 2026 &bull; Camp Wilderness">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Songs List -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h5 fw-bold text-dark mb-0">Selected Songs (<span id="selected-count">0</span>)</h3>
+        <button id="clear-program-btn" class="btn btn-sm btn-outline-danger">
+            <i class="fa-solid fa-trash me-1"></i> Clear Program
+        </button>
+    </div>
+
+    <div id="selected-songs-container" class="row row-cols-1 g-3 mb-4">
+        <!-- Populated via JS -->
+    </div>
+</div>
+
+<!-- Hidden form for PDF export -->
+<form id="pdf-export-form" method="POST" action="{{ url_for('export_pdf') }}" style="display: none;">
+    <input type="hidden" name="song_ids" id="form-song-ids">
+    <input type="hidden" name="title" id="form-title">
+    <input type="hidden" name="subtitle" id="form-subtitle">
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    loadProgramSongs();
+
+    document.getElementById('clear-program-btn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your campfire program?')) {
+            localStorage.removeItem('campfire_songs');
+            loadProgramSongs();
+            updateProgramBadge();
+        }
+    });
+
+    document.getElementById('export-pdf-btn').addEventListener('click', () => {
+        const songIds = getSelectedSongs();
+        if (songIds.length === 0) return;
+
+        document.getElementById('form-song-ids').value = JSON.stringify(songIds);
+        document.getElementById('form-title').value = document.getElementById('program-title-input').value;
+        document.getElementById('form-subtitle').value = document.getElementById('program-subtitle-input').value;
+        document.getElementById('pdf-export-form').submit();
+    });
+});
+
+function loadProgramSongs() {
+    const songIds = getSelectedSongs();
+    const emptyDiv = document.getElementById('empty-program');
+    const contentDiv = document.getElementById('program-content');
+    const exportBtn = document.getElementById('export-pdf-btn');
+    const countSpan = document.getElementById('selected-count');
+    const container = document.getElementById('selected-songs-container');
+
+    countSpan.textContent = songIds.length;
+
+    if (songIds.length === 0) {
+        emptyDiv.style.display = 'block';
+        contentDiv.style.display = 'none';
+        exportBtn.style.display = 'none';
+        return;
+    }
+
+    emptyDiv.style.display = 'none';
+    contentDiv.style.display = 'block';
+    exportBtn.style.display = 'inline-block';
+
+    // Fetch song details via API or embedded data
+    fetch('{{ url_for("api_songs") }}')
+        .then(res => res.json())
+        .then(allSongs => {
+            const songMap = {};
+            allSongs.forEach(s => songMap[s.id] = s);
+
+            container.innerHTML = '';
+            songIds.forEach((id, index) => {
+                const song = songMap[id];
+                if (!song) return;
+
+                const card = document.createElement('div');
+                card.className = 'col';
+                card.innerHTML = `
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge bg-warning text-dark me-2">#${index + 1}</span>
+                                    <h4 class="h5 fw-bold text-dark mb-0">${song.title}</h4>
+                                    <span class="badge bg-light text-dark border ms-2">Key: ${song.key}</span>
+                                </div>
+                                <p class="text-muted small mb-0">By ${song.artist} &bull; ${song.category}</p>
+                            </div>
+                            <div class="btn-group">
+                                <a href="/song/${song.id}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger remove-song-btn" data-song-id="${song.id}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Bind remove buttons
+            document.querySelectorAll('.remove-song-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-song-id');
+                    toggleSongInProgram(id);
+                    loadProgramSongs();
+                    updateProgramBadge();
+                });
+            });
+        });
+}
+</script>
+{% endblock %}

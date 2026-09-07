@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Country Roads",
+    "artist": "John Denver",
+    "category": "Classic",
+    "key": "G",
+    "lyrics": "Almost heaven, West Virginia\nBlue Ridge Mountains, Shenandoah River\nLife is old there, older than the trees\nYounger than the mountains, blowing like a breeze\n\nCountry roads, take me home\nTo the place I belong\nWest Virginia, mountain mama\nTake me home, country roads"
+  },
+  {
+    "id": 2,
+    "title": "Kumbaya",
+    "artist": "Traditional",
+    "category": "Traditional / Spiritual",
+    "key": "D",
+    "lyrics": "Kumbaya, my Lord, kumbaya\nKumbaya, my Lord, kumbaya\nKumbaya, my Lord, kumbaya\nO Lord, kumbaya\n\nSomeone's singing, Lord, kumbaya\nSomeone's singing, Lord, kumbaya\nSomeone's singing, Lord, kumbaya\nO Lord, kumbaya"
+  },
+  {
+    "id": 3,
+    "title": "This Land Is Your Land",
+    "artist": "Woody Guthrie",
+    "category": "Folk",
+    "key": "C",
+    "lyrics": "This land is your land, this land is my land\nFrom California to the New York island\nFrom the redwood forest to the gulf stream waters\nThis land was made for you and me\n\nAs I went walking that ribbon of highway\nI saw above me that endless skyway\nI saw below me that golden valley\nThis land was made for you and me"
+  },
+  {
+    "id": 4,
+    "title": "Lean on Me",
+    "artist": "Bill Withers",
+    "category": "Singalong",
+    "key": "C",
+    "lyrics": "Sometimes in our lives we all have pain, we all have sorrow\nBut if we are wise, we know that there's always tomorrow\n\nLean on me, when you're not strong\nAnd I'll be your friend, I'll help you carry on\nFor it won't be long, 'til I'm gonna need\nSomebody to lean on"
+  },
+  {
+    "id": 5,
+    "title": "I've Been Working on the Railroad",
+    "artist": "Traditional",
+    "category": "Camp Classic",
+    "key": "G",
+    "lyrics": "I've been working on the railroad\nAll the live-long day\nI've been working on the railroad\nJust to pass the time away\n\nDon't you hear the whistle blowing?\nRise up so early in the morn\nDon't you hear the whistle blowing?\nDinah, blow your horn!"
+  },
+  {
+    "id": 6,
+    "title": "Blowing in the Wind",
+    "artist": "Bob Dylan",
+    "category": "Folk",
+    "key": "D",
+    "lyrics": "How many roads must a man walk down\nBefore you call him a man?\nHow many seas must a white dove sail\nBefore she sleeps in the sand?\nYes, and how many times must the cannonballs fly\nBefore they're forever banned?\nThe answer, my friend, is blowing in the wind\nThe answer is blowing in the wind."
+  }
+]

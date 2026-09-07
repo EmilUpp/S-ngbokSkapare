@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="mb-3">
+            <a href="{{ url_for('index') }}" class="text-decoration-none text-muted">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Catalog
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="fw-bold text-dark mb-4"><i class="fa-solid fa-plus-circle text-warning me-2"></i>Add New Song</h2>
+
+                <form method="POST" action="{{ url_for('new_song') }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-semibold">Song Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" required placeholder="e.g. Puff the Magic Dragon">
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="artist" class="form-label fw-semibold">Artist / Author</label>
+                            <input type="text" class="form-control" id="artist" name="artist" placeholder="e.g. Peter, Paul and Mary">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label fw-semibold">Category</label>
+                            <input type="text" class="form-control" id="category" name="category" placeholder="e.g. Folk">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="key" class="form-label fw-semibold">Musical Key</label>
+                            <input type="text" class="form-control" id="key" name="key" placeholder="e.g. G">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="lyrics" class="form-label fw-semibold">Lyrics & Chords *</label>
+                        <textarea class="form-control font-monospace" id="lyrics" name="lyrics" rows="10" required placeholder="Enter lyrics and chords here..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-warning fw-semibold px-4">Save Song</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
