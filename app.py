@@ -1,8 +1,10 @@
 import os
 import json
+import math
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from fpdf import FPDF
 import io
+from pypdf import PdfWriter, PdfReader
 
 app = Flask(__name__)
 
@@ -85,13 +87,27 @@ def api_songs():
     songs = load_songs()
     return jsonify(songs)
 
-@app.route('/export-pdf', methods=['POST'])
-import json
+def clean_pdf_text(text):
+    if not text:
+        return ""
+    replacements = {
+        '—': '-',
+        '–': '-',
+        '“': '"',
+        '”': '"',
+        '‘': "'",
+        '’': "'",
+        '…': '...'
+    }
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+    return text.encode('latin1', errors='replace').decode('latin1')
 
+@app.route('/export-pdf', methods=['POST'])
 def export_pdf():
     song_ids_str = request.form.get('song_ids', '[]')
-    title = request.form.get('title', 'Campfire Songbook')
-    subtitle = request.form.get('subtitle', 'Campfire Program')
+    title = clean_pdf_text(request.form.get('title', 'Campfire Songbook'))
+    subtitle = clean_pdf_text(request.form.get('subtitle', 'Campfire Program'))
 
     try:
         song_ids = json.loads(song_ids_str)
@@ -102,54 +118,112 @@ def export_pdf():
     song_map = {s['id']: s for s in songs}
     selected_songs = [song_map[int(sid)] for sid in song_ids if int(sid) in song_map]
 
-    # Generate PDF using fpdf2
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    # Generate booklet-form PDF (A4 landscape, one song per page)
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.set_auto_page_break(auto=True, margin=12)
+
+    def add_song_page(s, number):
+        pdf.add_page()
+        pdf.set_font("helvetica", "B", 14)
+        pdf.set_x(15)
+        s_title = clean_pdf_text(s.get('title', ''))
+        s_artist = clean_pdf_text(s.get('artist', ''))
+        s_key = clean_pdf_text(s.get('key', ''))
+        header = f"{number}. {s_title} (Key: {s_key})"
+        if s_artist:
+            header += f" - {s_artist}"
+        pdf.multi_cell(282, 7, header)
+        pdf.set_font("helvetica", "", 11)
+        pdf.set_x(15)
+        lyrics_text = s.get('lyrics', '') or ''
+        pdf.multi_cell(282, 5, lyrics_text)
+
+    # Cover page (front of booklet) - A4 landscape
     pdf.add_page()
-
-    # Title Page / Header
-    pdf.set_font("helvetica", "B", 24)
-    pdf.cell(0, 15, title, ln=True, align="C")
-
+    pdf.set_font("helvetica", "B", 28)
+    pdf.set_xy(0, 100)
+    pdf.cell(297, 14, title, ln=False, align="C")
     if subtitle:
         pdf.set_font("helvetica", "I", 14)
         pdf.set_text_color(100, 100, 100)
-        pdf.cell(0, 10, subtitle, ln=True, align="C")
-
+        pdf.set_xy(0, 120)
+        pdf.cell(297, 7, subtitle, ln=False, align="C")
     pdf.set_text_color(0, 0, 0)
-    pdf.ln(10)
 
-    # Table of Contents
-    if selected_songs:
-        pdf.set_font("helvetica", "B", 14)
-        pdf.cell(0, 10, "Program Song List:", ln=True)
-        pdf.set_font("helvetica", "", 11)
-        for i, s in enumerate(selected_songs, 1):
-            pdf.cell(0, 7, f"{i}. {s['title']} (Key: {s['key']}) - {s['artist']}", ln=True)
-        pdf.ln(10)
-
-    # Song Pages
+    # TOC / inside cover - simple list (no lyrics)
+    pdf.add_page()
+    pdf.set_font("helvetica", "B", 16)
+    pdf.set_xy(0, 15)
+    pdf.cell(297, 10, "Program", ln=False, align="C")
+    pdf.set_font("helvetica", "", 12)
+    y = 35
     for i, s in enumerate(selected_songs, 1):
+        s_title = clean_pdf_text(s.get('title', ''))
+        s_key = clean_pdf_text(s.get('key', ''))
+        s_artist = clean_pdf_text(s.get('artist', ''))
+        if y > 190:
+            pdf.add_page()
+            y = 20
+        pdf.set_xy(20, y)
+        pdf.cell(267, 7, f"{i}. {s_title}  (Key: {s_key})  {s_artist}", ln=False)
+        y += 8
+
+    # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
+    # Each column 135mm wide with gap, full 210mm page height
+    pdf.add_page()
+    page_height = 210
+    margin_top = 10
+    margin_bottom = 10
+    col_w = 135
+    col_gap = 8
+    col_x_left = 15
+    col_x_right = 15 + col_w + col_gap
+
+    def estimate_song_height(s):
+        lyrics = s.get('lyrics', '') or ''
+        lines = lyrics.split('\n') if lyrics else ['']
+        return 8 + max(len(lines) * 4.5, 4) + 4
+
+    # Two columns: collect songs into left then right column
+    current_col = 0  # 0 = left, 1 = right
+    current_y = margin_top
+    for idx, s in enumerate(selected_songs):
+        number = idx + 1
+        s_title = clean_pdf_text(s.get('title', ''))
+        s_artist = clean_pdf_text(s.get('artist', ''))
+        s_key = clean_pdf_text(s.get('key', ''))
+        header = f"{number}. {s_title} (Key: {s_key})"
+        if s_artist:
+            header += f" - {s_artist}"
+        lyrics_text = s.get('lyrics', '') or ''
+
+        est_h = estimate_song_height(s)
+        # If this song doesn't fit in current column, move to next column/page
+        if current_y + est_h > page_height - margin_bottom:
+            current_col += 1
+            current_y = margin_top
+            if current_col > 1:
+                pdf.add_page()
+                current_col = 0
+        if current_col == 0:
+            x = col_x_left
+        else:
+            x = col_x_right
+
+        pdf.set_xy(x, current_y)
+        pdf.set_font("helvetica", "B", 11)
+        pdf.multi_cell(col_w, 6, header)
+        pdf.set_x(x)
+        pdf.set_font("helvetica", "", 9)
+        pdf.multi_cell(col_w, 4.5, lyrics_text)
+        current_y = pdf.get_y() + 3
+
+    # Pad to multiple of 4 for booklet printing (blank pages if needed)
+    # Note: booklet expects total pages divisible by 4 for clean folding
+    total_pages = pdf.page_no()
+    blanks_needed = (4 - total_pages % 4) % 4
+    for _ in range(blanks_needed):
         pdf.add_page()
-
-        # Song Header
-        pdf.set_font("helvetica", "B", 18)
-        pdf.cell(0, 10, f"{i}. {s['title']}", ln=True)
-
-        pdf.set_font("helvetica", "I", 11)
-        pdf.set_text_color(120, 120, 120)
-        pdf.cell(0, 6, f"Artist: {s['artist']}  |  Category: {s['category']}  |  Key: {s['key']}", ln=True)
-        pdf.set_text_color(0, 0, 0)
-        pdf.ln(5)
-
-        # Lyrics
-        pdf.set_font("helvetica", "", 11)
-        # Handle multi-line lyrics cleanly
-        for line in s['lyrics'].split('\n'):
-            if line.strip() == '':
-                pdf.ln(4)
-            else:
-                pdf.cell(0, 6, line, ln=True)
 
     pdf_output = pdf.output(dest='S')
     if isinstance(pdf_output, str):
@@ -161,7 +235,7 @@ def export_pdf():
         io.BytesIO(pdf_bytes),
         mimetype='application/pdf',
         as_attachment=True,
-        download_name='Campfire_Songbook.pdf'
+        download_name='Campfire_Songbook_Booklet.pdf'
     )
 
 if __name__ == '__main__':

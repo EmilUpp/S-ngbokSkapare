@@ -1,8 +1,8 @@
-// Campfire Program State Management using localStorage
+// Lägereldsprogram - tillståndshantering med localStorage
 document.addEventListener('DOMContentLoaded', () => {
     updateProgramBadge();
 
-    // Bind song select buttons
+    // Koppla sångvalsknappar
     document.querySelectorAll('.toggle-program-btn').forEach(btn => {
         const songId = btn.getAttribute('data-song-id');
         updateButtonState(btn, songId);
@@ -49,11 +49,11 @@ function updateButtonState(btn, songId) {
     if (isSongSelected(songId)) {
         btn.classList.remove('btn-outline-warning', 'btn-outline-dark');
         btn.classList.add('btn-warning', 'text-dark');
-        btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> In Program';
+        btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> I programmet';
     } else {
         btn.classList.remove('btn-warning', 'text-dark');
         btn.classList.add('btn-outline-dark');
-        btn.innerHTML = '<i class="fa-solid fa-plus me-1"></i> Add to Program';
+        btn.innerHTML = '<i class="fa-solid fa-plus me-1"></i> Lägg till i program';
     }
 }
 

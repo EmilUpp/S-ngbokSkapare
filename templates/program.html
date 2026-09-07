@@ -45,9 +45,14 @@
     <!-- Selected Songs List -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="h5 fw-bold text-dark mb-0">Selected Songs (<span id="selected-count">0</span>)</h3>
-        <button id="clear-program-btn" class="btn btn-sm btn-outline-danger">
-            <i class="fa-solid fa-trash me-1"></i> Clear Program
-        </button>
+        <div>
+            <button id="clear-program-btn" class="btn btn-sm btn-outline-danger me-2">
+                <i class="fa-solid fa-trash me-1"></i> Clear Program
+            </button>
+            <button id="toggle-all-btn" class="btn btn-sm btn-outline-secondary">
+                <i class="fa-solid fa-chevron-down me-1"></i> Collapse All
+            </button>
+        </div>
     </div>
 
     <div id="selected-songs-container" class="row row-cols-1 g-3 mb-4">
@@ -67,12 +72,44 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     loadProgramSongs();
+    let allCollapsed = true;
 
     document.getElementById('clear-program-btn').addEventListener('click', () => {
         if (confirm('Are you sure you want to clear your campfire program?')) {
             localStorage.removeItem('campfire_songs');
             loadProgramSongs();
             updateProgramBadge();
+        }
+    });
+
+    document.getElementById('toggle-all-btn').addEventListener('click', () => {
+        allCollapsed = !allCollapsed;
+        document.querySelectorAll('[id^="song-details-"]').forEach(details => {
+            if (allCollapsed) {
+                details.classList.remove('show');
+            } else {
+                details.classList.add('show');
+            }
+        });
+        document.querySelectorAll('[id^="chevron-"]').forEach(chevron => {
+            if (allCollapsed) {
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
+            } else {
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+            }
+        });
+        const toggleBtn = document.getElementById('toggle-all-btn');
+        const icon = toggleBtn.querySelector('i');
+        if (allCollapsed) {
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down me-1"></i> Collapse All';
+        } else {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up me-1"></i> Expand All';
         }
     });
 
@@ -86,6 +123,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('pdf-export-form').submit();
     });
 });
+
+function toggleSongDetails(songId) {
+    const collapse = document.getElementById('song-details-' + songId);
+    const chevron = document.getElementById('chevron-' + songId);
+    if (collapse.classList.contains('show')) {
+        collapse.classList.remove('show');
+        chevron.classList.remove('fa-chevron-up');
+        chevron.classList.add('fa-chevron-down');
+    } else {
+        collapse.classList.add('show');
+        chevron.classList.remove('fa-chevron-down');
+        chevron.classList.add('fa-chevron-up');
+    }
+}
+
+function removeSongFromProgram(songId) {
+    toggleSongInProgram(songId);
+    loadProgramSongs();
+    updateProgramBadge();
+}
 
 function loadProgramSongs() {
     const songIds = getSelectedSongs();
@@ -108,7 +165,6 @@ function loadProgramSongs() {
     contentDiv.style.display = 'block';
     exportBtn.style.display = 'inline-block';
 
-    // Fetch song details via API or embedded data
     fetch('{{ url_for("api_songs") }}')
         .then(res => res.json())
         .then(allSongs => {
@@ -123,38 +179,46 @@ function loadProgramSongs() {
                 const card = document.createElement('div');
                 card.className = 'col';
                 card.innerHTML = `
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="d-flex align-items-center mb-1">
-                                    <span class="badge bg-warning text-dark me-2">#${index + 1}</span>
-                                    <h4 class="h5 fw-bold text-dark mb-0">${song.title}</h4>
-                                    <span class="badge bg-light text-dark border ms-2">Key: ${song.key}</span>
-                                </div>
-                                <p class="text-muted small mb-0">By ${song.artist} &bull; ${song.category}</p>
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-body p-0">
+                            <div class="d-flex align-items-center p-3 cursor-pointer" style="background-color: #f8f9fa;" onclick="toggleSongDetails('${song.id}')">
+                                <span class="badge bg-warning text-dark me-3">#${index + 1}</span>
+                                <h4 class="h5 fw-bold text-dark mb-0 me-auto">${song.title}</h4>
+                                <span class="badge bg-light text-dark border me-3">Key: ${song.key}</span>
+                                <span class="text-muted small">By ${song.artist} &bull; ${song.category}</span>
+                                <i class="fa-solid fa-chevron-down text-muted ms-3" id="chevron-${song.id}"></i>
                             </div>
-                            <div class="btn-group">
-                                <a href="/song/${song.id}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger remove-song-btn" data-song-id="${song.id}">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                            <div class="collapse" id="song-details-${song.id}">
+                                <div class="p-3 bg-white">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="text-muted small mb-2"><strong>Artist:</strong> ${song.artist}</p>
+                                            <p class="text-muted small mb-2"><strong>Category:</strong> ${song.category}</p>
+                                            <p class="text-muted small mb-2"><strong>Key:</strong> ${song.key}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="text-muted small mb-2"><strong>Lyrics Preview:</strong></p>
+                                            <div class="lyrics-preview text-muted small" style="max-height: 100px; overflow-y: auto;">
+                                                ${song.lyrics ? (song.lyrics.substring(0, 150) + (song.lyrics.length > 150 ? '...' : '')) : 'No lyrics available'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-0 p-2">
+                                <div class="btn-group w-100">
+                                    <a href="/song/${song.id}" class="btn btn-sm btn-outline-primary flex-grow-1" target="_blank">
+                                        <i class="fa-solid fa-eye me-1"></i>View Full
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="removeSongFromProgram('${song.id}')">
+                                        <i class="fa-solid fa-trash me-1"></i>Remove
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
                 container.appendChild(card);
-            });
-
-            // Bind remove buttons
-            document.querySelectorAll('.remove-song-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.getAttribute('data-song-id');
-                    toggleSongInProgram(id);
-                    loadProgramSongs();
-                    updateProgramBadge();
-                });
             });
         });
 }

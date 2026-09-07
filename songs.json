@@ -46,5 +46,13 @@
     "category": "Folk",
     "key": "D",
     "lyrics": "How many roads must a man walk down\nBefore you call him a man?\nHow many seas must a white dove sail\nBefore she sleeps in the sand?\nYes, and how many times must the cannonballs fly\nBefore they're forever banned?\nThe answer, my friend, is blowing in the wind\nThe answer is blowing in the wind."
+  },
+  {
+    "id": 7,
+    "title": "This is a test",
+    "artist": "me",
+    "category": "classic",
+    "key": "A",
+    "lyrics": "Badabing badabong"
   }
 ]
