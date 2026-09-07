@@ -45,17 +45,12 @@
     <!-- Selected Songs List -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="h5 fw-bold text-dark mb-0">Valda sånger (<span id="selected-count">0</span>)</h3>
-        <div>
-            <button id="clear-program-btn" class="btn btn-sm btn-outline-danger me-2">
-                <i class="fa-solid fa-trash me-1"></i> Töm program
-            </button>
-            <button id="toggle-all-btn" class="btn btn-sm btn-outline-secondary">
-                <i class="fa-solid fa-chevron-down me-1"></i> Fäll ihop alla
-            </button>
-        </div>
+        <button id="clear-program-btn" class="btn btn-sm btn-outline-danger">
+            <i class="fa-solid fa-trash me-1"></i> Töm program
+        </button>
     </div>
 
-    <div id="selected-songs-container" class="row row-cols-1 g-3 mb-4">
+    <div id="selected-songs-container" class="list-group mb-4">
         <!-- Populated via JS -->
     </div>
 </div>
@@ -72,44 +67,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     loadProgramSongs();
-    let allCollapsed = true;
 
     document.getElementById('clear-program-btn').addEventListener('click', () => {
         if (confirm('Är du säker på att du vill tömma ditt lägereldsprogram?')) {
             localStorage.removeItem('campfire_songs');
             loadProgramSongs();
             updateProgramBadge();
-        }
-    });
-
-    document.getElementById('toggle-all-btn').addEventListener('click', () => {
-        allCollapsed = !allCollapsed;
-        document.querySelectorAll('[id^="song-details-"]').forEach(details => {
-            if (allCollapsed) {
-                details.classList.remove('show');
-            } else {
-                details.classList.add('show');
-            }
-        });
-        document.querySelectorAll('[id^="chevron-"]').forEach(chevron => {
-            if (allCollapsed) {
-                chevron.classList.remove('fa-chevron-up');
-                chevron.classList.add('fa-chevron-down');
-            } else {
-                chevron.classList.remove('fa-chevron-down');
-                chevron.classList.add('fa-chevron-up');
-            }
-        });
-        const toggleBtn = document.getElementById('toggle-all-btn');
-        const icon = toggleBtn.querySelector('i');
-        if (allCollapsed) {
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
-            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down me-1"></i> Fäll ihop alla';
-        } else {
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-up');
-            toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up me-1"></i> Fäll ut alla';
         }
     });
 
@@ -176,49 +139,18 @@ function loadProgramSongs() {
                 const song = songMap[id];
                 if (!song) return;
 
-                const card = document.createElement('div');
-                card.className = 'col';
-                card.innerHTML = `
-                    <div class="card shadow-sm border-0 mb-3">
-                        <div class="card-body p-0">
-                            <div class="d-flex align-items-center p-3 cursor-pointer" style="background-color: #f8f9fa;" onclick="toggleSongDetails('${song.id}')">
-                                <span class="badge bg-warning text-dark me-3">#${index + 1}</span>
-                                <h4 class="h5 fw-bold text-dark mb-0 me-auto">${song.title}</h4>
-                                <span class="badge bg-light text-dark border me-3">Tonart: ${song.key}</span>
-                                <span class="text-muted small">Av ${song.artist} &bull; ${song.category}</span>
-                                <i class="fa-solid fa-chevron-down text-muted ms-3" id="chevron-${song.id}"></i>
-                            </div>
-                            <div class="collapse" id="song-details-${song.id}">
-                                <div class="p-3 bg-white">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="text-muted small mb-2"><strong>Artist:</strong> ${song.artist}</p>
-                                            <p class="text-muted small mb-2"><strong>Kategori:</strong> ${song.category}</p>
-                                            <p class="text-muted small mb-2"><strong>Tonart:</strong> ${song.key}</p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p class="text-muted small mb-2"><strong>Sångtext:</strong></p>
-                                            <div class="lyrics-preview text-muted small" style="max-height: 100px; overflow-y: auto;">
-                                                ${song.lyrics ? (song.lyrics.substring(0, 150) + (song.lyrics.length > 150 ? '...' : '')) : 'Ingen sångtext tillgänglig'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-white border-0 p-2">
-                                <div class="btn-group w-100">
-                                    <a href="/song/${song.id}" class="btn btn-sm btn-outline-primary flex-grow-1" target="_blank">
-                                        <i class="fa-solid fa-eye me-1"></i>Visa full
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="removeSongFromProgram('${song.id}')">
-                                        <i class="fa-solid fa-trash me-1"></i>Ta bort
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                const item = document.createElement('a');
+                item.className = 'list-group-item list-group-item-action d-flex align-items-center p-3';
+                item.href = '/song/' + song.id;
+                item.innerHTML = `
+                    <span class="badge bg-warning text-dark me-3">#${index + 1}</span>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-0 fw-bold text-dark">${song.title}</h5>
+                        <span class="text-muted small">${song.artist} &bull; ${song.category} &bull; Tonart: ${song.key}</span>
                     </div>
+                    <i class="fa-solid fa-arrow-right text-muted ms-2"></i>
                 `;
-                container.appendChild(card);
+                container.appendChild(item);
             });
         });
 }

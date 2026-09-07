@@ -153,22 +153,21 @@ def export_pdf():
         pdf.cell(front_w, 7, subtitle, ln=False, align="C")
     pdf.set_text_color(0, 0, 0)
 
-    # TOC / inside cover - simple list (no lyrics)
+    # TOC / inside cover - simple list (no lyrics), content on left half
     pdf.add_page()
     pdf.set_font("helvetica", "B", 16)
     pdf.set_xy(0, 15)
-    pdf.cell(297, 10, "Program", ln=False, align="C")
+    pdf.cell(148.5, 10, "Program", ln=False, align="C")
     pdf.set_font("helvetica", "", 12)
     y = 35
     for i, s in enumerate(selected_songs, 1):
         s_title = clean_pdf_text(s.get('title', ''))
         s_key = clean_pdf_text(s.get('key', ''))
-        s_artist = clean_pdf_text(s.get('artist', ''))
         if y > 190:
             pdf.add_page()
             y = 20
         pdf.set_xy(20, y)
-        pdf.cell(267, 7, f"{i}. {s_title}  (Key: {s_key})  {s_artist}", ln=False)
+        pdf.cell(118, 7, f"{i}. {s_title}  (Key: {s_key})", ln=False)
         y += 8
 
     # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
