@@ -28,17 +28,25 @@ def index():
     query = request.args.get('q', '').strip().lower()
     songs = load_songs()
 
+    tag_filter = request.args.get('tag')
+    if tag_filter:
+        songs = [s for s in songs if tag_filter in s.get('tags', [])]
+    
+    all_tags = sorted(set(tag for s in load_songs() for tag in s.get('tags', []) if tag))
+
     if query:
         filtered = []
         for s in songs:
+            tags_str = ' '.join(s.get('tags', []))
             if (query in s.get('title', '').lower() or
                 query in s.get('artist', '').lower() or
                 query in s.get('category', '').lower() or
-                query in s.get('lyrics', '').lower()):
+                query in s.get('lyrics', '').lower() or
+                query in tags_str.lower()):
                 filtered.append(s)
         songs = filtered
 
-    return render_template('index.html', songs=songs, query=query)
+    return render_template('index.html', songs=songs, query=query, all_tags=all_tags, tag_filter=tag_filter)
 
 @app.route('/song/<int:song_id>')
 def song_detail(song_id):
@@ -69,7 +77,8 @@ def new_song():
             "artist": artist or "Traditional",
             "category": category,
             "key": key,
-            "lyrics": lyrics
+            "lyrics": lyrics,
+            "tags": request.form.get('tags', '').split(',') if request.form.get('tags') else []
         }
         songs.append(song_entry)
         save_songs(songs)
