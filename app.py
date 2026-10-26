@@ -1,6 +1,6 @@
 import os
 import json
-import math
+import threading
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from fpdf import FPDF
 import io
@@ -9,6 +9,38 @@ from pypdf import PdfWriter, PdfReader
 app = Flask(__name__)
 
 SONGS_FILE = os.path.join(os.path.dirname(__file__), 'songs.json')
+
+RELOAD_WATCHED_DIRS = ['templates', 'static']
+reload_lock = threading.Lock()
+reload_state = {'mtime': 0}
+
+def _scan_mtimes():
+    mtimes = []
+    for d in RELOAD_WATCHED_DIRS:
+        base = os.path.join(os.path.dirname(__file__), d)
+        for root, _, files in os.walk(base):
+            for name in files:
+                p = os.path.join(root, name)
+                try:
+                    mtimes.append(os.path.getmtime(p))
+                except OSError:
+                    pass
+    if os.path.exists(SONGS_FILE):
+        try:
+            mtimes.append(os.path.getmtime(SONGS_FILE))
+        except OSError:
+            pass
+    return max(mtimes, default=0)
+
+@app.route('/reload-status')
+def reload_status():
+    if not app.debug:
+        return jsonify(enabled=False)
+    with reload_lock:
+        current = _scan_mtimes()
+        if current != reload_state['mtime']:
+            reload_state['mtime'] = current
+    return jsonify(enabled=True, mtime=reload_state['mtime'])
 
 def load_songs():
     if not os.path.exists(SONGS_FILE):
