@@ -25,7 +25,8 @@ def test_booklet():
         response = client.post('/export-pdf', data={
             'song_ids': json.dumps(song_ids),
             'title': 'Scout Night',
-            'subtitle': 'Campfire'
+            'subtitle': 'Campfire',
+            'include_toc': 'on'
         })
 
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"

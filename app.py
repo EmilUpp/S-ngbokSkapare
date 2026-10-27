@@ -118,6 +118,7 @@ def export_pdf():
     song_ids_str = request.form.get('song_ids', '[]')
     title = clean_pdf_text(request.form.get('title', 'Campfire Songbook'))
     subtitle = clean_pdf_text(request.form.get('subtitle', 'Campfire Program'))
+    include_toc = request.form.get('include_toc') == 'on'
 
     try:
         song_ids = json.loads(song_ids_str)
@@ -161,25 +162,30 @@ def export_pdf():
     pdf.set_text_color(0, 0, 0)
 
     # TOC / inside cover - simple list (no lyrics), content on left half
-    pdf.add_page()
-    pdf.set_text_color(*INK)
-    pdf.set_font("helvetica", "B", 16)
-    pdf.set_xy(0, 18)
-    pdf.cell(148.5, 10, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
-    pdf.set_font("helvetica", "", 12)
-    y = 42
-    for i, s in enumerate(selected_songs, 1):
-        s_title = clean_pdf_text(s.get('title', ''))
-        s_key = clean_pdf_text(s.get('key', ''))
-        if y > 190:
-            pdf.add_page()
-            y = 20
-        pdf.set_xy(22, y)
-        pdf.cell(10, 7, f"{i}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
-        pdf.set_xy(34, y)
-        pdf.cell(94, 7, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
-        y += 8.5
-    pdf.set_text_color(0, 0, 0)
+    # Optional: can be excluded to save paper
+    toc_pages = 0
+    if include_toc:
+        pdf.add_page()
+        toc_pages = 1
+        pdf.set_text_color(*INK)
+        pdf.set_font("helvetica", "B", 16)
+        pdf.set_xy(0, 18)
+        pdf.cell(148.5, 10, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
+        pdf.set_font("helvetica", "", 12)
+        y = 42
+        for i, s in enumerate(selected_songs, 1):
+            s_title = clean_pdf_text(s.get('title', ''))
+            s_key = clean_pdf_text(s.get('key', ''))
+            if y > 190:
+                pdf.add_page()
+                toc_pages += 1
+                y = 20
+            pdf.set_xy(22, y)
+            pdf.cell(10, 7, f"{i}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+            pdf.set_xy(34, y)
+            pdf.cell(94, 7, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
+            y += 8.5
+        pdf.set_text_color(0, 0, 0)
 
     # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
     # Each column 135mm wide with gap, full 210mm page height

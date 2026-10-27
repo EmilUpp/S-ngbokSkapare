@@ -29,6 +29,10 @@
                 <input type="text" id="program-subtitle-input" class="eld-input" value="September 2026 &bull; Scoutlägret">
             </div>
         </div>
+        <div class="d-flex align-items-center gap-2 mt-2">
+            <input type="checkbox" id="include-toc-checkbox" checked class="form-check-input">
+            <label class="field-label mb-0" for="include-toc-checkbox" style="text-transform:none;letter-spacing:0;">Inkludera programsida (innehållsförteckning) i PDF:en</label>
+        </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -48,6 +52,7 @@
     <input type="hidden" name="song_ids" id="form-song-ids">
     <input type="hidden" name="title" id="form-title">
     <input type="hidden" name="subtitle" id="form-subtitle">
+    <input type="hidden" name="include_toc" id="form-include-toc">
 </form>
 {% endblock %}
 
@@ -71,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('form-song-ids').value = JSON.stringify(songIds);
         document.getElementById('form-title').value = document.getElementById('program-title-input').value;
         document.getElementById('form-subtitle').value = document.getElementById('program-subtitle-input').value;
+        const tocCheckbox = document.getElementById('include-toc-checkbox');
+        document.getElementById('form-include-toc').value = tocCheckbox && tocCheckbox.checked ? 'on' : '';
         document.getElementById('pdf-export-form').submit();
     });
 });
