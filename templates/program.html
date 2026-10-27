@@ -1,61 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-        <h1 class="fw-bold text-dark mb-1"><i class="fa-solid fa-book-open text-warning me-2"></i>Lägereldsprogram</h1>
-        <p class="text-muted">Granska dina valda sånger, organisera din lägerkväll och exportera till ett utskriftsvänligt PDF.</p>
-    </div>
-    <div class="col-md-4 text-md-end">
-        <button id="export-pdf-btn" class="btn btn-warning fw-semibold shadow-sm" style="display: none;">
-            <i class="fa-solid fa-file-pdf me-1"></i> Ladda ner PDF-sångbok
-        </button>
-    </div>
+<div class="page-head">
+    <h1>Lägereldsprogram</h1>
+    <button id="export-pdf-btn" class="btn-eld ember" style="display: none;">
+        <i class="fa-solid fa-file-pdf"></i> Ladda ner PDF-sångbok
+    </button>
+    <p class="lede">Granska dina valda sånger, organisera din lägerkväll och exportera till ett utskriftsvänligt PDF.</p>
 </div>
+<hr class="rule">
 
-<div id="empty-program" class="card shadow-sm border-0 text-center py-5" style="display: none;">
-    <div class="card-body py-5">
-        <i class="fa-solid fa-fire-extinguisher fa-3x text-muted mb-3"></i>
-        <h3 class="text-dark fw-bold">Ditt lägereldsprogram är tomt</h3>
-        <p class="text-muted mb-4">Gå till sångkatalogen och klicka på "Lägg till i program" på de sånger du vill ha med.</p>
-        <a href="{{ url_for('index') }}" class="btn btn-dark fw-semibold">
-            <i class="fa-solid fa-music me-1"></i> Bläddra i sångkatalogen
-        </a>
-    </div>
+<div id="empty-program" class="program-sheet empty-state" style="display: none;">
+    <div class="icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+    <h3>Ditt lägereldsprogram är tomt</h3>
+    <p>Gå till sångkatalogen och klicka på "Lägg till i program" på de sånger du vill ha med.</p>
+    <a href="{{ url_for('index') }}" class="btn-eld"><i class="fa-solid fa-music me-2"></i>Bläddra i sångkatalogen</a>
 </div>
 
 <div id="program-content" style="display: none;">
-    <!-- Program Config Card -->
-    <div class="card shadow-sm border-0 mb-4 bg-white">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gear me-1"></i> Programdetaljer</h5>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="program-title-input" class="form-label fw-semibold small">Titel / Evenemang</label>
-                    <input type="text" id="program-title-input" class="form-control" value="Scoutpatrull 42 Lägereld">
-                </div>
-                <div class="col-md-6">
-                    <label for="program-subtitle-input" class="form-label fw-semibold small">Datum / Plats / Undertitel</label>
-                    <input type="text" id="program-subtitle-input" class="form-control" value="September 2026 &bull; Scoutlägret">
-                </div>
+    <div class="program-sheet mb-4">
+        <div class="two-col mb-3">
+            <div>
+                <label class="field-label" for="program-title-input">Titel / Evenemang</label>
+                <input type="text" id="program-title-input" class="eld-input" value="Scoutpatrull 42 Lägereld">
+            </div>
+            <div>
+                <label class="field-label" for="program-subtitle-input">Datum / Plats / Undertitel</label>
+                <input type="text" id="program-subtitle-input" class="eld-input" value="September 2026 &bull; Scoutlägret">
             </div>
         </div>
     </div>
 
-    <!-- Selected Songs List -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="h5 fw-bold text-dark mb-0">Valda sånger (<span id="selected-count">0</span>)</h3>
-        <button id="clear-program-btn" class="btn btn-sm btn-outline-danger">
-            <i class="fa-solid fa-trash me-1"></i> Töm program
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3>Valda sånger (<span id="selected-count">0</span>)</h3>
+        <button id="clear-program-btn" class="btn-quiet">
+            <i class="fa-solid fa-trash"></i> Töm program
         </button>
     </div>
 
-    <div id="selected-songs-container" class="list-group mb-4">
-        <!-- Populated via JS -->
+    <div class="program-sheet">
+        <div id="selected-songs-container"></div>
     </div>
 </div>
 
-<!-- Hidden form for PDF export -->
 <form id="pdf-export-form" method="POST" action="{{ url_for('export_pdf') }}" style="display: none;">
     <input type="hidden" name="song_ids" id="form-song-ids">
     <input type="hidden" name="title" id="form-title">
@@ -87,20 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function toggleSongDetails(songId) {
-    const collapse = document.getElementById('song-details-' + songId);
-    const chevron = document.getElementById('chevron-' + songId);
-    if (collapse.classList.contains('show')) {
-        collapse.classList.remove('show');
-        chevron.classList.remove('fa-chevron-up');
-        chevron.classList.add('fa-chevron-down');
-    } else {
-        collapse.classList.add('show');
-        chevron.classList.remove('fa-chevron-down');
-        chevron.classList.add('fa-chevron-up');
-    }
-}
-
 function removeSongFromProgram(songId) {
     toggleSongInProgram(songId);
     loadProgramSongs();
@@ -126,7 +99,7 @@ function loadProgramSongs() {
 
     emptyDiv.style.display = 'none';
     contentDiv.style.display = 'block';
-    exportBtn.style.display = 'inline-block';
+    exportBtn.style.display = 'inline-flex';
 
     fetch('{{ url_for("api_songs") }}')
         .then(res => res.json())
@@ -139,16 +112,17 @@ function loadProgramSongs() {
                 const song = songMap[id];
                 if (!song) return;
 
-                const item = document.createElement('a');
-                item.className = 'list-group-item list-group-item-action d-flex align-items-center p-3';
-                item.href = '/song/' + song.id;
+                const item = document.createElement('div');
+                item.className = 'program-item';
                 item.innerHTML = `
-                    <span class="badge bg-warning text-dark me-3">#${index + 1}</span>
-                    <div class="flex-grow-1">
-                        <h5 class="mb-0 fw-bold text-dark">${song.title}</h5>
-                        <span class="text-muted small">${song.artist} &bull; ${song.category} &bull; Tonart: ${song.key}</span>
+                    <div class="num">${index + 1}</div>
+                    <div>
+                        <a class="t" href="/song/${song.id}">${song.title}</a>
+                        <span class="m">${song.artist} &bull; ${song.category} &bull; Tonart: ${song.key}</span>
                     </div>
-                    <i class="fa-solid fa-arrow-right text-muted ms-2"></i>
+                    <button class="mini-btn" onclick="removeSongFromProgram(${song.id})">
+                        <i class="fa-solid fa-xmark"></i> Ta bort
+                    </button>
                 `;
                 container.appendChild(item);
             });

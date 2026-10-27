@@ -47,12 +47,10 @@ function isSongSelected(songId) {
 
 function updateButtonState(btn, songId) {
     if (isSongSelected(songId)) {
-        btn.classList.remove('btn-outline-warning', 'btn-outline-dark');
-        btn.classList.add('btn-warning', 'text-dark');
+        btn.classList.add('is-in-program');
         btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> I programmet';
     } else {
-        btn.classList.remove('btn-warning', 'text-dark');
-        btn.classList.add('btn-outline-dark');
+        btn.classList.remove('is-in-program');
         btn.innerHTML = '<i class="fa-solid fa-plus me-1"></i> Lägg till i program';
     }
 }

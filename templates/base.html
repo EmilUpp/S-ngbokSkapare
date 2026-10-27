@@ -3,45 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sångbok & Programskapare{% endblock %}</title>
+    <title>{% block title %}Sångbok &amp; Programskapare{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                <i class="fa-solid fa-fire text-warning me-2"></i>Sångbok
+<body>
+    <header class="masthead">
+        <div class="container d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <a class="brand" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-fire flame"></i>Sångboken
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}"><i class="fa-solid fa-music me-1"></i> Såangkatalog</a>
-                    </li>
-                    <li class="nav-item ms-lg-3">
-                        <a class="btn btn-warning position-relative fw-semibold" href="{{ url_for('view_program') }}">
-                            <i class="fa-solid fa-book-open me-1"></i> Lägereldsprogram
-                            <span id="program-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                0
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <nav>
+                <a href="{{ url_for('index') }}"><i class="fa-solid fa-music me-2"></i>Sångkatalog</a>
+                <a class="program-link" href="{{ url_for('view_program') }}">
+                    <i class="fa-solid fa-book-open me-2"></i>Lägereldsprogram
+                    <span id="program-badge" class="program-badge">0</span>
+                </a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <main class="container my-4 flex-grow-1">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-white text-center py-3 mt-auto">
-        <div class="container small text-muted">
-            Sångbok & Programskapare &bull; Byggd med Python & Flask
+    <footer class="colophon">
+        <div class="container">
+            Sångbok &amp; Programskapare &bull; Byggd med Python &amp; Flask
         </div>
     </footer>
 
