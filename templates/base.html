@@ -23,11 +23,10 @@
                         <a class="nav-link" href="{{ url_for('index') }}"><i class="fa-solid fa-music me-1"></i> Såangkatalog</a>
                     </li>
                     <li class="nav-item ms-lg-2">
-                        <div class="btn-group theme-picker" role="group" aria-label="Tema">
-                            <button type="button" class="btn btn-sm btn-outline-light" data-set-theme="classic" title="Klassiskt scout">Aa</button>
-                            <button type="button" class="btn btn-sm btn-outline-light" data-set-theme="sommar" title="Sommarläger">Bb</button>
-                            <button type="button" class="btn btn-sm btn-outline-light" data-set-theme="ember" title="Mörk glöd">Cc</button>
-                            <button type="button" class="btn btn-sm btn-outline-light" data-set-theme="vintage" title="Vintage">Dd</button>
+                        <div class="btn-group layout-picker" role="group" aria-label="Layout">
+                            <button type="button" class="btn btn-sm btn-outline-light" data-set-layout="tidning" title="Tidning: fullbredd, lista">Tidning</button>
+                            <button type="button" class="btn btn-sm btn-outline-light" data-set-layout="klassiskt" title="Klassiskt: sidomeny + kort">Klassiskt</button>
+                            <button type="button" class="btn btn-sm btn-outline-light" data-set-layout="fotoalbum" title="Fotoalbum: bred visning">Fotoalbum</button>
                         </div>
                     </li>
                     <li class="nav-item ms-lg-3">
@@ -59,15 +58,20 @@
 <script>
     (function () {
         var stored = null;
-        try { stored = localStorage.getItem('sb-theme'); } catch (e) {}
-        var theme = stored || 'classic';
-        document.documentElement.setAttribute('data-theme', theme);
+        try { stored = localStorage.getItem('sb-layout'); } catch (e) {}
+        var layout = stored || 'klassiskt';
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-set-theme]').forEach(function (btn) {
+            document.body.setAttribute('data-layout', layout);
+            document.querySelectorAll('[data-set-layout]').forEach(function (btn) {
+                if (btn.getAttribute('data-set-layout') === layout) {
+                    btn.classList.add('active');
+                }
                 btn.addEventListener('click', function () {
-                    var t = btn.getAttribute('data-set-theme');
-                    document.documentElement.setAttribute('data-theme', t);
-                    try { localStorage.setItem('sb-theme', t); } catch (e) {}
+                    var l = btn.getAttribute('data-set-layout');
+                    document.body.setAttribute('data-layout', l);
+                    document.querySelectorAll('[data-set-layout]').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    try { localStorage.setItem('sb-layout', l); } catch (e) {}
                 });
             });
         });

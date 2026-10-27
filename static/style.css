@@ -1,71 +1,7 @@
 /* ============================================================
-   Theme variables - default (Classic Scout)
+   Vintage Scout - permanent palette
    ============================================================ */
-:root,
-[data-theme="classic"] {
-    --sb-bg: #f8f9fa;
-    --sb-surface: #ffffff;
-    --sb-text: #212529;
-    --sb-muted: #6c757d;
-    --sb-primary: #d97706;
-    --sb-primary-text: #ffffff;
-    --sb-accent: #212529;
-    --sb-card-border: rgba(0, 0, 0, 0.08);
-    --sb-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
-    --sb-tag-bg: #0d6efd;
-    --sb-tag-text: #ffffff;
-    --sb-radius: 0.5rem;
-    --sb-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --sb-nav-bg: #212529;
-    --sb-nav-text: #ffffff;
-}
-
-/* ============================================================
-   Theme: Dark Ember (Mörk Glöd)
-   ============================================================ */
-[data-theme="ember"] {
-    --sb-bg: #12161f;
-    --sb-surface: #1b2130;
-    --sb-text: #e9e4f0;
-    --sb-muted: #8b93a7;
-    --sb-primary: #ff7a1a;
-    --sb-primary-text: #1a1200;
-    --sb-accent: #ffb347;
-    --sb-card-border: rgba(255, 255, 255, 0.08);
-    --sb-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.45);
-    --sb-tag-bg: #ff7a1a;
-    --sb-tag-text: #1a1200;
-    --sb-radius: 0.75rem;
-    --sb-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --sb-nav-bg: #0c0f16;
-    --sb-nav-text: #e9e4f0;
-}
-
-/* ============================================================
-   Theme: Sommarläger (Summer Camp)
-   ============================================================ */
-[data-theme="sommar"] {
-    --sb-bg: #eef6f7;
-    --sb-surface: #ffffff;
-    --sb-text: #1f3b45;
-    --sb-muted: #5b7c88;
-    --sb-primary: #0e8f8f;
-    --sb-primary-text: #ffffff;
-    --sb-accent: #f4a259;
-    --sb-card-border: rgba(31, 59, 69, 0.12);
-    --sb-shadow: 0 0.25rem 1rem rgba(31, 59, 69, 0.10);
-    --sb-tag-bg: #0e8f8f;
-    --sb-tag-text: #ffffff;
-    --sb-radius: 1rem;
-    --sb-font: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-    --sb-nav-bg: #1f6b70;
-    --sb-nav-text: #ffffff;
-}
-
-/* ============================================================
-   Theme: Vintage Scout (Retro)
-   ============================================================ */
-[data-theme="vintage"] {
+:root {
     --sb-bg: #efe6d5;
     --sb-surface: #f9f3e6;
     --sb-text: #3d2f1e;
@@ -219,13 +155,77 @@ a {
     border-color: var(--sb-card-border) !important;
 }
 
-/* Dark theme fixes: keep dark buttons readable in ember */
-[data-theme="ember"] .btn-outline-dark:hover,
-[data-theme="ember"] .btn-dark {
-    color: #12161f;
+/* ============================================================
+   Layouts
+   ============================================================ */
+
+/* --- Tidning (newspaper): full width, dense rows, top tag bar --- */
+body[data-layout="tidning"] .song-grid {
+    display: block;
 }
 
-[data-theme="ember"] .btn-dark:hover {
-    background-color: var(--sb-accent);
-    color: #12161f;
+body[data-layout="tidning"] .song-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--sb-card-border);
+    margin-bottom: 0;
 }
+
+body[data-layout="tidning"] .song-row .song-meta {
+    flex: 1 1 auto;
+}
+
+body[data-layout="tidning"] .song-row .song-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+body[data-layout="tidning"] .song-card {
+    box-shadow: none;
+}
+
+body[data-layout="tidning"] .song-card:hover {
+    transform: none;
+    box-shadow: none;
+    background-color: #f3ecdd;
+}
+
+body[data-layout="tidning"] .card-text {
+    display: none;
+}
+
+body[data-layout="tidning"] main > .container {
+    max-width: 100%;
+}
+
+/* --- Fotoalbum (album): wider cards, centered, roomy --- */
+body[data-layout="fotoalbum"] .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+body[data-layout="fotoalbum"] .song-card {
+    padding: 0.25rem;
+}
+
+body[data-layout="fotoalbum"] .song-card .card-body {
+    padding: 1.5rem;
+}
+
+body[data-layout="fotoalbum"] .card-title {
+    font-size: 1.35rem;
+}
+
+body[data-layout="fotoalbum"] .song-meta {
+    font-size: 1.05rem;
+}
+
+body[data-layout="fotoalbum"] .song-card img {
+    width: 100%;
+    height: auto;
+}
+
+/* --- Klassiskt: default, no overrides needed --- */
