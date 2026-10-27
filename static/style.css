@@ -403,6 +403,105 @@ body {
     color: #fdf6e3;
 }
 
+/* ---------- Song card grid ---------- */
+.song-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.1rem;
+}
+
+.song-card-eld {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1.1rem 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.song-card-eld:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(36, 51, 41, 0.16);
+    border-color: var(--gold);
+}
+
+.song-card-eld .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.5rem;
+}
+
+.song-card-eld .number {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: var(--gold);
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.song-card-eld .title-link {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.song-card-eld .title-link:hover {
+    color: var(--ember);
+    text-decoration: underline;
+}
+
+.song-card-eld .meta {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+}
+
+.song-card-eld .snippet {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    font-style: italic;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+    padding-top: 0.5rem;
+}
+
+.song-card-eld .entry-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.song-card-eld .entry-tags span {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--pine);
+    border: 1px solid var(--line);
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+}
+
+.song-card-eld .actions {
+    display: flex;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+}
+
+.song-card-eld .actions .mini-btn {
+    flex: 1;
+    font-size: 0.84rem;
+    padding: 0.42rem 0.5rem;
+}
+
 /* ---------- Empty state ---------- */
 .empty-state {
     text-align: center;

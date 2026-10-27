@@ -46,24 +46,24 @@
 {% endif %}
 
 {% if songs %}
-<div class="song-index">
+<div class="song-card-grid">
     {% for song in songs %}
-    <article class="song-entry">
-        <div class="number">{{ loop.index }}</div>
-        <div class="main">
+    <article class="song-card-eld">
+        <div class="card-head">
+            <span class="number">{{ loop.index }}</span>
             <a class="title-link" href="{{ url_for('song_detail', song_id=song.id) }}">{{ song.title }}</a>
-            <div class="meta">Av {{ song.artist }} &bull; Tonart: {{ song.key }} &bull; {{ song.category }}</div>
-            {% if song.lyrics %}
-            <div class="snippet">{{ song.lyrics[:140] }}…</div>
-            {% endif %}
-            {% if song.tags %}
-            <div class="entry-tags">
-                {% for tag in song.tags %}
-                <span>{{ tag }}</span>
-                {% endfor %}
-            </div>
-            {% endif %}
         </div>
+        <div class="meta">Av {{ song.artist }} &bull; Tonart: {{ song.key }} &bull; {{ song.category }}</div>
+        {% if song.lyrics %}
+        <div class="snippet">{{ song.lyrics[:160] }}…</div>
+        {% endif %}
+        {% if song.tags %}
+        <div class="entry-tags">
+            {% for tag in song.tags %}
+            <span>{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
         <div class="actions">
             <a href="{{ url_for('song_detail', song_id=song.id) }}" class="mini-btn">
                 <i class="fa-solid fa-eye"></i> Visa
