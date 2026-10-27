@@ -129,15 +129,11 @@ def export_pdf():
     selected_songs = [song_map[int(sid)] for sid in song_ids if int(sid) in song_map]
 
     # Generate booklet-form PDF (A4 landscape, one song per page)
-    INK = (36, 51, 41)
-    PINE = (46, 74, 59)
-    EMBER = (194, 85, 27)
-    GOLD = (176, 138, 62)
-    SOFT = (92, 107, 94)
-    PAPER = (253, 250, 243)
-    LINE = (217, 207, 186)
+    INK = (0, 0, 0)
+    GREY = (110, 110, 110)
+    LIGHT = (190, 190, 190)
 
-    def hrule(x, w, y, color=LINE, weight=0.5):
+    def hrule(x, w, y, color=LIGHT, weight=0.35):
         pdf.set_draw_color(*color)
         pdf.set_line_width(weight)
         pdf.line(x, y, x + w, y)
@@ -149,46 +145,27 @@ def export_pdf():
     # Layout: left half = front cover, right half = back cover
     pdf.add_page()
     front_w = 297 / 2
-    # Parchment front-cover panel
-    pdf.set_fill_color(*PAPER)
-    pdf.rect(0, 0, front_w, 210, 'F')
-    pdf.rect(8, 8, front_w - 16, 194)
-    pdf.set_draw_color(*GOLD)
-    pdf.set_line_width(0.8)
-    pdf.rect(11, 11, front_w - 22, 188)
-    # Small ember flame mark
-    pdf.set_text_color(*EMBER)
-    pdf.set_font("helvetica", "B", 20)
-    pdf.set_xy(0, 62)
-    pdf.cell(front_w, 10, "~", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
-    # Title block between rules
-    hrule(30, front_w - 60, 84, INK, 1.0)
+    # Toned-down cover: single thin frame, plain white, centered text only
+    pdf.set_draw_color(*INK)
+    pdf.set_line_width(0.4)
+    pdf.rect(12, 12, front_w - 24, 186)
     pdf.set_text_color(*INK)
-    pdf.set_font("helvetica", "B", 26)
-    pdf.set_xy(15, 92)
-    pdf.multi_cell(front_w - 30, 12, title, align="C")
-    hrule(30, front_w - 60, pdf.get_y() + 3, INK, 1.0)
+    pdf.set_font("helvetica", "B", 24)
+    pdf.set_xy(20, 95)
+    pdf.multi_cell(front_w - 40, 11, title, align="C")
     if subtitle:
-        pdf.set_font("helvetica", "I", 13)
-        pdf.set_text_color(*SOFT)
-        pdf.set_xy(15, pdf.get_y() + 9)
-        pdf.multi_cell(front_w - 30, 7, subtitle, align="C")
-    pdf.set_text_color(*GOLD)
-    pdf.set_font("helvetica", "", 10)
-    pdf.set_xy(0, 178)
-    pdf.cell(front_w, 6, "- L\u00e4gereldss\u00e5ngbok -", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
+        pdf.set_font("helvetica", "I", 12)
+        pdf.set_text_color(*GREY)
+        pdf.set_xy(20, pdf.get_y() + 6)
+        pdf.multi_cell(front_w - 40, 6, subtitle, align="C")
     pdf.set_text_color(0, 0, 0)
 
     # TOC / inside cover - simple list (no lyrics), content on left half
     pdf.add_page()
-    pdf.set_draw_color(*EMBER)
-    pdf.set_line_width(1.0)
-    pdf.line(0, 10, 148.5, 10)
     pdf.set_text_color(*INK)
-    pdf.set_font("helvetica", "B", 18)
+    pdf.set_font("helvetica", "B", 16)
     pdf.set_xy(0, 18)
     pdf.cell(148.5, 10, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
-    hrule(45, 58.5, 30, GOLD, 0.6)
     pdf.set_font("helvetica", "", 12)
     y = 42
     for i, s in enumerate(selected_songs, 1):
@@ -198,15 +175,10 @@ def export_pdf():
             pdf.add_page()
             y = 20
         pdf.set_xy(22, y)
-        pdf.set_text_color(*GOLD)
-        pdf.set_font("helvetica", "B", 12)
         pdf.cell(10, 7, f"{i}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
-        pdf.set_text_color(*INK)
-        pdf.set_font("helvetica", "", 12)
-        pdf.cell(96, 7, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
+        pdf.set_xy(34, y)
+        pdf.cell(94, 7, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
         y += 8.5
-        if i < len(selected_songs):
-            hrule(22, 106, y - 2.2, LINE, 0.3)
     pdf.set_text_color(0, 0, 0)
 
     # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
@@ -252,26 +224,21 @@ def export_pdf():
             current_x = col_x_right
 
         pdf.set_xy(current_x, current_y)
-        # Gold number + title header with ember accent
-        pdf.set_text_color(*GOLD)
-        pdf.set_font("helvetica", "B", 12)
-        pdf.cell(9, 6, f"{number}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+        # Song header: number + title, artist line, then lyrics (black & white)
         pdf.set_text_color(*INK)
         pdf.set_font("helvetica", "B", 11)
-        header_main = f"{s_title}"
-        pdf.multi_cell(col_w - 9, 6, header_main)
+        pdf.cell(9, 6, f"{number}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+        pdf.multi_cell(col_w - 9, 6, s_title)
         if s_artist:
             pdf.set_xy(current_x + 9, pdf.get_y())
-            pdf.set_text_color(*SOFT)
+            pdf.set_text_color(*GREY)
             pdf.set_font("helvetica", "I", 8)
             pdf.multi_cell(col_w - 9, 4, f"{s_artist}  -  Tonart: {s_key}")
-        hrule(current_x + 9, col_w - 9, pdf.get_y() + 0.8, EMBER, 0.5)
-        pdf.set_xy(current_x, pdf.get_y() + 2.5)
-        pdf.set_text_color(40, 40, 40)
+        pdf.set_xy(current_x, pdf.get_y() + 2)
+        pdf.set_text_color(*INK)
         pdf.set_font("helvetica", "", 9)
         pdf.multi_cell(col_w, 4.5, lyrics_text)
         current_y = pdf.get_y() + 4
-        pdf.set_text_color(0, 0, 0)
 
     # Pad to multiple of 4 for booklet printing (blank pages if needed)
     # Note: booklet expects total pages divisible by 4 for clean folding
