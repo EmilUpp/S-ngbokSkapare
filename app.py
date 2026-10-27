@@ -2,6 +2,7 @@ import os
 import json
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 import io
 from pypdf import PdfWriter, PdfReader
 
@@ -153,19 +154,19 @@ def export_pdf():
     front_w = 297 / 2  # left half
     pdf.set_font("helvetica", "B", 28)
     pdf.set_xy(0, 100)
-    pdf.cell(front_w, 14, title, ln=False, align="C")
+    pdf.cell(front_w, 14, title, new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
     if subtitle:
         pdf.set_font("helvetica", "I", 14)
         pdf.set_text_color(100, 100, 100)
         pdf.set_xy(0, 120)
-        pdf.cell(front_w, 7, subtitle, ln=False, align="C")
+        pdf.cell(front_w, 7, subtitle, new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
     pdf.set_text_color(0, 0, 0)
 
     # TOC / inside cover - simple list (no lyrics), content on left half
     pdf.add_page()
     pdf.set_font("helvetica", "B", 16)
     pdf.set_xy(0, 15)
-    pdf.cell(148.5, 10, "Program", ln=False, align="C")
+    pdf.cell(148.5, 10, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
     pdf.set_font("helvetica", "", 12)
     y = 35
     for i, s in enumerate(selected_songs, 1):
@@ -175,7 +176,7 @@ def export_pdf():
             pdf.add_page()
             y = 20
         pdf.set_xy(20, y)
-        pdf.cell(118, 7, f"{i}. {s_title}  (Key: {s_key})", ln=False)
+        pdf.cell(118, 7, f"{i}. {s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
         y += 8
 
     # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
@@ -235,7 +236,7 @@ def export_pdf():
     for _ in range(blanks_needed):
         pdf.add_page()
 
-    pdf_output = pdf.output(dest='S')
+    pdf_output = pdf.output()
     if isinstance(pdf_output, str):
         pdf_bytes = pdf_output.encode('latin1')
     else:
