@@ -1,48 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
+<div class="form-sheet">
+    <a href="{{ url_for('index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Tillbaka till sångkatalogen</a>
+
+    <h2>Lägg till ny sång</h2>
+
+    <form method="POST" action="{{ url_for('new_song') }}">
         <div class="mb-3">
-            <a href="{{ url_for('index') }}" class="text-decoration-none text-muted">
-                <i class="fa-solid fa-arrow-left me-1"></i> Tillbaka till sångkatalogen
-            </a>
+            <label class="field-label" for="title">Sångtitel *</label>
+            <input type="text" class="eld-input" id="title" name="title" required placeholder="t.ex. Blinka lilla stjärna">
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4 p-md-5">
-                <h2 class="fw-bold text-dark mb-4"><i class="fa-solid fa-plus-circle text-warning me-2"></i>Lägg till ny sång</h2>
-
-                <form method="POST" action="{{ url_for('new_song') }}">
-                    <div class="mb-3">
-                        <label for="title" class="form-label fw-semibold">Sångtitel *</label>
-                        <input type="text" class="form-control" id="title" name="title" required placeholder="t.ex. Blinka lilla stjärna">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="artist" class="form-label fw-semibold">Artist / Upphovsman</label>
-                        <input type="text" class="form-control" id="artist" name="artist" placeholder="t.ex. Trad./Folkmusik">
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="tags" class="form-label fw-semibold">Taggar</label>
-                            <input type="text" class="form-control" id="tags" name="tags" placeholder="t.ex. stämning, genre">
-                            <small class="form-text text-muted">Separera taggar med kommatecken</small>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="lyrics" class="form-label fw-semibold">Text & ackord *</label>
-                        <textarea class="form-control font-monospace" id="lyrics" name="lyrics" rows="10" required placeholder="Skriv in sångtext och ackord här..."></textarea>
-                    </div>
-
-                    <div class="d-flex justify-content-end">
-                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">Avbryt</a>
-                        <button type="submit" class="btn btn-warning fw-semibold px-4">Spara sång</button>
-                    </div>
-                </form>
+        <div class="two-col mb-3">
+            <div>
+                <label class="field-label" for="artist">Artist / Upphovsman</label>
+                <input type="text" class="eld-input" id="artist" name="artist" placeholder="t.ex. Trad./Folkmusik">
+            </div>
+            <div>
+                <label class="field-label" for="tags">Taggar</label>
+                <input type="text" class="eld-input" id="tags" name="tags" placeholder="t.ex. stämning, genre">
             </div>
         </div>
-    </div>
+        <p class="text-muted-eld mb-3" style="font-size:0.88rem;">Separera taggar med kommatecken</p>
+
+        <div class="mb-4">
+            <label class="field-label" for="lyrics">Text &amp; ackord *</label>
+            <textarea class="eld-input" id="lyrics" name="lyrics" rows="12" required placeholder="Skriv in sångtext och ackord här..."></textarea>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ url_for('index') }}" class="btn-quiet">Avbryt</a>
+            <button type="submit" class="btn-eld ember"><i class="fa-solid fa-floppy-disk"></i> Spara sång</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
