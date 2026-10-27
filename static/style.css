@@ -526,14 +526,48 @@ body {
 
 .program-item {
     display: grid;
-    grid-template-columns: 3rem 1fr auto;
-    gap: 1rem;
+    grid-template-columns: auto 2.6rem 1fr auto;
+    gap: 0.8rem;
     align-items: center;
     padding: 0.95rem 0.3rem;
     border-bottom: 1px solid var(--line);
 }
 
 .program-item:last-child { border-bottom: none; }
+
+.program-item.dragging {
+    opacity: 0.45;
+    background: #f3ecdd;
+}
+
+.program-item .drag-handle {
+    color: var(--ink-soft);
+    cursor: grab;
+    font-size: 1rem;
+}
+
+.program-item .drag-handle:active {
+    cursor: grabbing;
+}
+
+.program-item .move-btns {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.program-item .move-btns .mini-btn {
+    padding: 0.35rem 0.55rem;
+}
+
+.program-item .move-btns .mini-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.program-item .move-btns .mini-btn:disabled:hover {
+    background: transparent;
+    color: var(--pine);
+}
 
 .program-item .num {
     font-family: var(--font-display);

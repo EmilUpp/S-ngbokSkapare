@@ -37,6 +37,7 @@
             <i class="fa-solid fa-trash"></i> Töm program
         </button>
     </div>
+    <p class="text-muted-eld mb-2" style="font-size:0.9rem;">Dra i sångerna för att ändra ordningen, eller använd pilknapparna.</p>
 
     <div class="program-sheet">
         <div id="selected-songs-container"></div>
@@ -80,6 +81,60 @@ function removeSongFromProgram(songId) {
     updateProgramBadge();
 }
 
+function moveSong(songId, direction) {
+    const songs = getSelectedSongs();
+    const index = songs.indexOf(songId);
+    const newIndex = index + direction;
+    if (index < 0 || newIndex < 0 || newIndex >= songs.length) return;
+    [songs[index], songs[newIndex]] = [songs[newIndex], songs[index]];
+    saveSelectedSongs(songs);
+    loadProgramSongs();
+}
+
+function enableDragAndDrop() {
+    const container = document.getElementById('selected-songs-container');
+    let dragged = null;
+
+    container.querySelectorAll('.program-item').forEach(item => {
+        item.addEventListener('dragstart', () => {
+            dragged = item;
+            item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            dragged = null;
+            persistOrderFromDom(container);
+        });
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!dragged || dragged === item) return;
+            const rect = item.getBoundingClientRect();
+            const after = (e.clientY - rect.top) > rect.height / 2;
+            if (after) {
+                item.parentNode.insertBefore(dragged, item.nextSibling);
+            } else {
+                item.parentNode.insertBefore(dragged, item);
+            }
+            renumberProgramItems(container);
+        });
+    });
+}
+
+function persistOrderFromDom(container) {
+    const ids = Array.from(container.querySelectorAll('.program-item')).map(
+        el => parseInt(el.dataset.songId)
+    );
+    saveSelectedSongs(ids);
+    loadProgramSongs();
+}
+
+function renumberProgramItems(container) {
+    container.querySelectorAll('.program-item').forEach((el, i) => {
+        const num = el.querySelector('.num');
+        if (num) num.textContent = i + 1;
+    });
+}
+
 function loadProgramSongs() {
     const songIds = getSelectedSongs();
     const emptyDiv = document.getElementById('empty-program');
@@ -114,18 +169,31 @@ function loadProgramSongs() {
 
                 const item = document.createElement('div');
                 item.className = 'program-item';
+                item.draggable = true;
+                item.dataset.songId = song.id;
                 item.innerHTML = `
+                    <i class="fa-solid fa-grip-lines drag-handle" title="Dra för att flytta"></i>
                     <div class="num">${index + 1}</div>
-                    <div>
+                    <div class="song-info">
                         <a class="t" href="/song/${song.id}">${song.title}</a>
                         <span class="m">${song.artist} &bull; ${song.category} &bull; Tonart: ${song.key}</span>
                     </div>
-                    <button class="mini-btn" onclick="removeSongFromProgram(${song.id})">
-                        <i class="fa-solid fa-xmark"></i> Ta bort
-                    </button>
+                    <div class="move-btns">
+                        <button class="mini-btn" onclick="moveSong(${song.id}, -1)" title="Flytta upp" ${index === 0 ? 'disabled' : ''}>
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                        <button class="mini-btn" onclick="moveSong(${song.id}, 1)" title="Flytta ner" ${index === songIds.length - 1 ? 'disabled' : ''}>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button class="mini-btn" onclick="removeSongFromProgram(${song.id})" title="Ta bort">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(item);
             });
+
+            enableDragAndDrop();
         });
 }
 </script>
