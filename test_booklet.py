@@ -44,25 +44,30 @@ def test_booklet():
         assert abs(w - 841.89) < 5, f"Page {i+1}: width {w} not A4 landscape (841.89 pts)"
         assert abs(h - 595.28) < 5, f"Page {i+1}: height {h} not A4 landscape (595.28 pts)"
 
-    # Check content: cover, TOC, then songs somewhere on remaining pages
+    # Saddle-stitch imposition: content pages of 4 are combined 2-per-side.
+    # With 4 songs + cover + TOC the content is >= 6 pages, padded to 8 -> 2 sheets.
+    # Sheets: front [n,1], back [2,n-1], front [n-2,3], back [4,n-3] (1-indexed).
     texts = [reader.pages[i].extract_text() or '' for i in range(pages)]
     print("Page contents (first line):")
     for i, text in enumerate(texts):
         first_line = text.split('\n')[0] if text else '(empty)'
         print(f"  Page {i+1}: {first_line!r}")
 
-    assert 'Scout Night' in texts[0], "Cover missing title"
-    assert 'Program' in texts[1], "TOC missing 'Program'"
-    # Songs should be on pages 3+
-    song_texts = texts[2:]
-    all_song_text = '\n'.join(song_texts)
-    assert 'Country Roads' in all_song_text, "First song missing"
-    assert 'Kumbaya' in all_song_text, "Second song missing"
-    assert 'Lean on Me' in all_song_text, "Fourth song missing"
+    all_text = '\n'.join(texts)
+    assert 'Scout Night' in all_text, "Cover missing title"
+    assert 'Program' in all_text, "TOC missing 'Program'"
+    assert 'Country Roads' in all_text, "First song missing"
+    assert 'Kumbaya' in all_text, "Second song missing"
+    assert 'Lean on Me' in all_text, "Fourth song missing"
 
-    # Total should be even for double-sided printing (multiple of 4 preferred)
-    assert pages % 2 == 0, f"Expected even page count for double-sided booklet, got {pages}"
-    assert pages % 4 == 0, f"Expected multiple of 4 for booklet folding, got {pages}"
+    # Booklet page-count: sheets are printed both sides; PDF pages = 2 per sheet,
+    # and sheet count must be a whole number (content pages multiple of 4).
+    assert pages % 2 == 0, f"Expected even PDF page count (front+back per sheet), got {pages}"
+
+    # PDF pages = 2 sides per sheet; content page count is a multiple of 4
+    assert pages % 2 == 0, f"Expected even PDF page count (sheet front+back), got {pages}"
+    # 4 songs + cover + TOC = 6 content pages -> padded to 8 -> 4 sides = 2 PDF pages
+    assert pages == 2, f"Expected 2 PDF pages (1 sheet, 4 A5 pages) for this content, got {pages}"
 
     print("All booklet tests passed.")
 

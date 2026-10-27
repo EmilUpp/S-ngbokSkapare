@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 import io
-from pypdf import PdfWriter, PdfReader
+from pypdf import PdfWriter, PdfReader, Transformation
 
 app = Flask(__name__)
 
@@ -114,6 +114,7 @@ def clean_pdf_text(text):
     return text.encode('latin1', errors='replace').decode('latin1')
 
 @app.route('/export-pdf', methods=['POST'])
+@app.route('/export-pdf', methods=['POST'])
 def export_pdf():
     song_ids_str = request.form.get('song_ids', '[]')
     title = clean_pdf_text(request.form.get('title', 'Campfire Songbook'))
@@ -129,135 +130,113 @@ def export_pdf():
     song_map = {s['id']: s for s in songs}
     selected_songs = [song_map[int(sid)] for sid in song_ids if int(sid) in song_map]
 
-    # Generate booklet-form PDF (A4 landscape, one song per page)
     INK = (0, 0, 0)
     GREY = (110, 110, 110)
-    LIGHT = (190, 190, 190)
 
-    def hrule(x, w, y, color=LIGHT, weight=0.35):
-        pdf.set_draw_color(*color)
-        pdf.set_line_width(weight)
-        pdf.line(x, y, x + w, y)
+    # Step 1: compose content as sequential A5 portrait pages
+    pdf = FPDF(orientation='P', unit='mm', format='A5')
+    pdf.set_auto_page_break(auto=True, margin=10)
 
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.set_auto_page_break(auto=True, margin=12)
-
-    # Cover page (front of booklet) - A4 landscape
-    # Layout: left half = front cover, right half = back cover
+    # Front cover
     pdf.add_page()
-    front_w = 297 / 2
-    # Toned-down cover: single thin frame, plain white, centered text only
     pdf.set_draw_color(*INK)
     pdf.set_line_width(0.4)
-    pdf.rect(12, 12, front_w - 24, 186)
+    pdf.rect(8, 8, 210 - 16, 148 - 16)
     pdf.set_text_color(*INK)
-    pdf.set_font("helvetica", "B", 24)
-    pdf.set_xy(20, 95)
-    pdf.multi_cell(front_w - 40, 11, title, align="C")
+    pdf.set_font("helvetica", "B", 20)
+    pdf.set_xy(16, 60)
+    pdf.multi_cell(210 - 32, 9, title, align="C")
     if subtitle:
-        pdf.set_font("helvetica", "I", 12)
+        pdf.set_font("helvetica", "I", 10)
         pdf.set_text_color(*GREY)
-        pdf.set_xy(20, pdf.get_y() + 6)
-        pdf.multi_cell(front_w - 40, 6, subtitle, align="C")
+        pdf.set_xy(16, pdf.get_y() + 4)
+        pdf.multi_cell(210 - 32, 5, subtitle, align="C")
     pdf.set_text_color(0, 0, 0)
 
-    # TOC / inside cover - simple list (no lyrics), content on left half
-    # Optional: can be excluded to save paper
-    toc_pages = 0
+    # Optional TOC
     if include_toc:
         pdf.add_page()
-        toc_pages = 1
         pdf.set_text_color(*INK)
-        pdf.set_font("helvetica", "B", 16)
-        pdf.set_xy(0, 18)
-        pdf.cell(148.5, 10, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
-        pdf.set_font("helvetica", "", 12)
-        y = 42
+        pdf.set_font("helvetica", "B", 14)
+        pdf.set_xy(0, 14)
+        pdf.cell(210, 8, "Program", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
+        pdf.set_font("helvetica", "", 10)
+        y = 34
         for i, s in enumerate(selected_songs, 1):
             s_title = clean_pdf_text(s.get('title', ''))
             s_key = clean_pdf_text(s.get('key', ''))
-            if y > 190:
+            if y > 132:
                 pdf.add_page()
-                toc_pages += 1
-                y = 20
-            pdf.set_xy(22, y)
-            pdf.cell(10, 7, f"{i}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
-            pdf.set_xy(34, y)
-            pdf.cell(94, 7, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
-            y += 8.5
+                y = 14
+            pdf.set_xy(14, y)
+            pdf.cell(8, 6, f"{i}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+            pdf.set_xy(24, y)
+            pdf.cell(172, 6, f"{s_title}  (Key: {s_key})", new_x=XPos.RIGHT, new_y=YPos.TOP)
+            y += 7
         pdf.set_text_color(0, 0, 0)
 
-    # Song pages - 2 columns per A4 landscape page (left/right), songs flow top-to-bottom
-    # Each column 135mm wide with gap, full 210mm page height
-    pdf.add_page()
-    page_height = 210
-    margin_top = 10
-    margin_bottom = 10
-    col_w = 135
-    col_gap = 8
-    col_x_left = 15
-    col_x_right = 15 + col_w + col_gap
-
-    def estimate_song_height(s):
-        lyrics = s.get('lyrics', '') or ''
-        lines = lyrics.split('\n') if lyrics else ['']
-        return 8 + max(len(lines) * 4.5, 4) + 4
-
-    # Two columns: collect songs into left then right column
-    current_col = 0  # 0 = left, 1 = right
-    current_y = margin_top
+    # Song pages: one song after another flowing down A5 pages
     for idx, s in enumerate(selected_songs):
         number = idx + 1
         s_title = clean_pdf_text(s.get('title', ''))
         s_artist = clean_pdf_text(s.get('artist', ''))
         s_key = clean_pdf_text(s.get('key', ''))
-        header = f"{number}. {s_title} (Key: {s_key})"
-        if s_artist:
-            header += f" - {s_artist}"
         lyrics_text = s.get('lyrics', '') or ''
 
-        est_h = estimate_song_height(s)
-        # If this song doesn't fit in current column, move to next column/page
-        if current_y + est_h > page_height - margin_bottom:
-            current_col += 1
-            current_y = margin_top
-            if current_col > 1:
-                pdf.add_page()
-                current_col = 0
-        if current_col == 0:
-            current_x = col_x_left
-        else:
-            current_x = col_x_right
+        if idx > 0 and pdf.get_y() > 100:
+            pdf.add_page()
 
-        pdf.set_xy(current_x, current_y)
-        # Song header: number + title, artist line, then lyrics (black & white)
         pdf.set_text_color(*INK)
-        pdf.set_font("helvetica", "B", 11)
-        pdf.cell(9, 6, f"{number}.", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
-        pdf.multi_cell(col_w - 9, 6, s_title)
+        pdf.set_font("helvetica", "B", 12)
+        pdf.set_x(12)
+        pdf.multi_cell(186, 6, f"{number}. {s_title}")
         if s_artist:
-            pdf.set_xy(current_x + 9, pdf.get_y())
             pdf.set_text_color(*GREY)
             pdf.set_font("helvetica", "I", 8)
-            pdf.multi_cell(col_w - 9, 4, f"{s_artist}  -  Tonart: {s_key}")
-        pdf.set_xy(current_x, pdf.get_y() + 2)
+            pdf.set_x(12)
+            pdf.multi_cell(186, 4, f"{s_artist}  -  Tonart: {s_key}")
         pdf.set_text_color(*INK)
         pdf.set_font("helvetica", "", 9)
-        pdf.multi_cell(col_w, 4.5, lyrics_text)
-        current_y = pdf.get_y() + 4
+        pdf.set_x(12)
+        pdf.multi_cell(186, 4.6, lyrics_text)
 
-    # Pad to multiple of 4 for booklet printing (blank pages if needed)
-    # Note: booklet expects total pages divisible by 4 for clean folding
+    # Pad to a multiple of 4 pages for saddle-stitch folding
     total_pages = pdf.page_no()
-    blanks_needed = (4 - total_pages % 4) % 4
-    for _ in range(blanks_needed):
+    blanks = (4 - total_pages % 4) % 4
+    for _ in range(blanks):
         pdf.add_page()
 
-    pdf_output = pdf.output()
-    if isinstance(pdf_output, str):
-        pdf_bytes = pdf_output.encode('latin1')
-    else:
-        pdf_bytes = bytes(pdf_output)
+    content_bytes = bytes(pdf.output())
+
+    # Step 2: saddle-stitch imposition.
+    # A4 landscape sheet holds two A5 pages per side. For a booklet of n pages:
+    #   sheet 1 front: [n, 1]   (back cover left, front cover right)
+    #   sheet 1 back:  [2, n-1]
+    #   sheet 2 front: [n-2, 3] ... etc. (1-indexed)
+    reader = PdfReader(io.BytesIO(content_bytes))
+    writer = PdfWriter()
+    n = len(reader.pages)
+
+    W = 297 / 25.4 * 72   # A4 landscape width in pt
+    H = 297 / 25.4 * 72 * 210 / 297  # = A4 landscape height
+    HW = W / 2
+
+    def add_sheet(left_idx, right_idx):
+        """left_idx/right_idx: 0-based content page indices on this side."""
+        page = writer.add_blank_page(width=W, height=H)
+        t = Transformation().translate(HW, 0)
+        page.merge_transformed_page(reader.pages[right_idx], t)
+        page.merge_transformed_page(reader.pages[left_idx], Transformation())
+
+    for sheet in range(n // 4):
+        first = sheet * 2          # first content page of this sheet pair
+        last = n - 1 - sheet * 2   # last content page
+        add_sheet(last, first)            # front side of the sheet
+        add_sheet(first + 1, last - 1)    # back side of the sheet
+
+    out = io.BytesIO()
+    writer.write(out)
+    pdf_bytes = out.getvalue()
 
     return send_file(
         io.BytesIO(pdf_bytes),
@@ -265,6 +244,7 @@ def export_pdf():
         as_attachment=True,
         download_name='Campfire_Songbook_Booklet.pdf'
     )
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
