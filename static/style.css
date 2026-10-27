@@ -1,5 +1,199 @@
+/* ============================================================
+   Theme variables - default (Classic Scout)
+   ============================================================ */
+:root,
+[data-theme="classic"] {
+    --sb-bg: #f8f9fa;
+    --sb-surface: #ffffff;
+    --sb-text: #212529;
+    --sb-muted: #6c757d;
+    --sb-primary: #d97706;
+    --sb-primary-text: #ffffff;
+    --sb-accent: #212529;
+    --sb-card-border: rgba(0, 0, 0, 0.08);
+    --sb-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+    --sb-tag-bg: #0d6efd;
+    --sb-tag-text: #ffffff;
+    --sb-radius: 0.5rem;
+    --sb-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sb-nav-bg: #212529;
+    --sb-nav-text: #ffffff;
+}
+
+/* ============================================================
+   Theme: Dark Ember (Mörk Glöd)
+   ============================================================ */
+[data-theme="ember"] {
+    --sb-bg: #12161f;
+    --sb-surface: #1b2130;
+    --sb-text: #e9e4f0;
+    --sb-muted: #8b93a7;
+    --sb-primary: #ff7a1a;
+    --sb-primary-text: #1a1200;
+    --sb-accent: #ffb347;
+    --sb-card-border: rgba(255, 255, 255, 0.08);
+    --sb-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.45);
+    --sb-tag-bg: #ff7a1a;
+    --sb-tag-text: #1a1200;
+    --sb-radius: 0.75rem;
+    --sb-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sb-nav-bg: #0c0f16;
+    --sb-nav-text: #e9e4f0;
+}
+
+/* ============================================================
+   Theme: Sommarläger (Summer Camp)
+   ============================================================ */
+[data-theme="sommar"] {
+    --sb-bg: #eef6f7;
+    --sb-surface: #ffffff;
+    --sb-text: #1f3b45;
+    --sb-muted: #5b7c88;
+    --sb-primary: #0e8f8f;
+    --sb-primary-text: #ffffff;
+    --sb-accent: #f4a259;
+    --sb-card-border: rgba(31, 59, 69, 0.12);
+    --sb-shadow: 0 0.25rem 1rem rgba(31, 59, 69, 0.10);
+    --sb-tag-bg: #0e8f8f;
+    --sb-tag-text: #ffffff;
+    --sb-radius: 1rem;
+    --sb-font: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    --sb-nav-bg: #1f6b70;
+    --sb-nav-text: #ffffff;
+}
+
+/* ============================================================
+   Theme: Vintage Scout (Retro)
+   ============================================================ */
+[data-theme="vintage"] {
+    --sb-bg: #efe6d5;
+    --sb-surface: #f9f3e6;
+    --sb-text: #3d2f1e;
+    --sb-muted: #7a6a52;
+    --sb-primary: #8b5a2b;
+    --sb-primary-text: #fdf6e3;
+    --sb-accent: #c1440e;
+    --sb-card-border: #d8c9ae;
+    --sb-shadow: 0 0.2rem 0.6rem rgba(61, 47, 30, 0.18);
+    --sb-tag-bg: #8b5a2b;
+    --sb-tag-text: #fdf6e3;
+    --sb-radius: 0.25rem;
+    --sb-font: Georgia, "Times New Roman", serif;
+    --sb-nav-bg: #3d2f1e;
+    --sb-nav-text: #fdf6e3;
+}
+
+/* ============================================================
+   Apply theme to base elements
+   ============================================================ */
 body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--sb-font);
+    background-color: var(--sb-bg);
+    color: var(--sb-text);
+}
+
+.navbar {
+    background-color: var(--sb-nav-bg) !important;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: var(--sb-nav-text) !important;
+}
+
+.navbar .btn-warning {
+    background-color: var(--sb-primary) !important;
+    border-color: var(--sb-primary) !important;
+    color: var(--sb-primary-text) !important;
+}
+
+footer {
+    background-color: var(--sb-nav-bg) !important;
+}
+
+.text-muted {
+    color: var(--sb-muted) !important;
+}
+
+.text-dark {
+    color: var(--sb-text) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--sb-text) !important;
+}
+
+a {
+    color: var(--sb-primary);
+}
+
+.card {
+    background-color: var(--sb-surface);
+    border-color: var(--sb-card-border);
+    box-shadow: var(--sb-shadow);
+    border-radius: var(--sb-radius);
+}
+
+.form-control {
+    background-color: var(--sb-surface);
+    border-color: var(--sb-card-border);
+    color: var(--sb-text);
+    border-radius: var(--sb-radius);
+}
+
+.form-control::placeholder {
+    color: var(--sb-muted);
+}
+
+.input-group-text {
+    background-color: var(--sb-surface);
+    border-color: var(--sb-card-border);
+    color: var(--sb-muted);
+}
+
+.btn-warning {
+    background-color: var(--sb-primary);
+    border-color: var(--sb-primary);
+    color: var(--sb-primary-text);
+    border-radius: var(--sb-radius);
+}
+
+.btn-outline-dark {
+    background-color: transparent;
+    border-color: var(--sb-text);
+    color: var(--sb-text);
+    border-radius: var(--sb-radius);
+}
+
+.btn-dark {
+    background-color: var(--sb-accent);
+    border-color: var(--sb-accent);
+    color: var(--sb-surface);
+    border-radius: var(--sb-radius);
+}
+
+.btn-outline-dark:hover {
+    background-color: var(--sb-text);
+    border-color: var(--sb-text);
+    color: var(--sb-bg);
+}
+
+.btn-outline-primary {
+    color: var(--sb-primary);
+    border-color: var(--sb-primary);
+    border-radius: var(--sb-radius);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--sb-primary);
+    border-color: var(--sb-primary);
+    color: var(--sb-primary-text);
+}
+
+.badge.bg-info,
+.badge.bg-dark {
+    background-color: var(--sb-tag-bg) !important;
+    color: var(--sb-tag-text) !important;
 }
 
 .song-card {
@@ -8,14 +202,30 @@ body {
 
 .song-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.18) !important;
 }
 
 .lyrics-box {
     white-space: pre-wrap;
-    background-color: #fffdf9;
-    border-left: 4px solid #d97706;
+    background-color: var(--sb-surface);
+    border-left: 4px solid var(--sb-primary);
     font-family: inherit;
     font-size: 1.05rem;
     line-height: 1.6;
+    color: var(--sb-text);
+}
+
+.border-top {
+    border-color: var(--sb-card-border) !important;
+}
+
+/* Dark theme fixes: keep dark buttons readable in ember */
+[data-theme="ember"] .btn-outline-dark:hover,
+[data-theme="ember"] .btn-dark {
+    color: #12161f;
+}
+
+[data-theme="ember"] .btn-dark:hover {
+    background-color: var(--sb-accent);
+    color: #12161f;
 }
